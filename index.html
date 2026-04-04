@@ -249,87 +249,52 @@
 
 
       <p>
-        <label for="mn-hipaa" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-hipaa" class="margin-toggle" />
-        <span class="marginnote">
-          <strong>What about HIPAA?</strong>
-          most users need to sign a release before their insurers will speak to us on their behalf.
-          But those in-the-know might also ask why we didn't use the HIPAA-mandated APIs—the answer is that
-          Granted initially did, but those APIs do not include important info &mdash; most critically, dollar
-          amounts.
-        </span>
         <span class="newthought"><a href="https://grantedhealth.com/">Granted</a> is a consumer app</span> that helps
         people navigate the healthcare system:
         everything from choosing a plan, to finding a doctor, to fighting insurance claim denials.
-        Step one for most of these workflows is to get the user&rsquo;s information: things like explanations of
-        benefits, claims
-        details, or member&nbsp;ID cards.
-        To save users the hassle of collecting that info themselves, we let them sign into their insurer's web portal
-        through our app, a stateful process that looks roughly like:
+        Step one for most of these workflows is to get the user&rsquo;s information:<label for="sn-hipaa" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-hipaa" class="margin-toggle" />
+        <span class="sidenote">
+          <strong>What about HIPAA?</strong>
+          most users need to sign a release before their insurers will speak to us on their behalf.
+          But those in-the-know might also ask why we didn&rsquo;t use the HIPAA-mandated APIs&mdash;the answer is that
+          Granted initially did, but those APIs do not include important info &mdash; most critically, dollar
+          amounts.
+        </span>
+        things like explanations of benefits, claims details, or member&nbsp;ID cards.
+        To save users the hassle of collecting that info themselves, we let them sign into their insurer&rsquo;s web portal through our
+        app.<label for="sn-state-machine" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-state-machine" class="margin-toggle" />
+        <span class="sidenote">See <a href="#appendix-state-machine">Appendix: Portal Auth State Machine</a> for the
+          full login flow.</span>
       </p>
-
-      <figure class="fullwidth">
-        <div class="diagram-container fullwidth">
-          <pre class="mermaid">
-stateDiagram-v2
-    [*] --> LoginPageLoaded : navigate to loginUrl
-
-    LoginPageLoaded --> CredentialsSubmitted : fill username + password
-
-    CredentialsSubmitted --> CredentialsErrored : invalid credentials
-    CredentialsSubmitted --> MfaOptionsPresented : MFA required (multiple methods)
-    CredentialsSubmitted --> MfaCodeEntry : MFA required (single method)
-    CredentialsSubmitted --> SecurityQuestion : security question presented
-    CredentialsSubmitted --> Success : direct login
-
-    CredentialsErrored --> CredentialsSubmitted : try with new creds
-
-    MfaOptionsPresented --> MfaCodeEntry : user selects method
-
-    MfaCodeEntry --> MfaCodeErrored : wrong code
-    MfaCodeEntry --> SecurityQuestion : additional verification
-    MfaCodeEntry --> Success : authenticated
-
-    MfaCodeErrored --> MfaCodeEntry : retry
-
-    SecurityQuestion --> SecurityQuestionErrored : wrong answer
-    SecurityQuestion --> Success : correct answer
-
-    SecurityQuestionErrored --> SecurityQuestion : retry
-
-    Success --> [*]
-</pre>
-        </div>
-      </figure>
 
 
       <p>
-        Web browser automation
-        <label for="mn-browser-automation" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-browser-automation" class="margin-toggle" />
-        <span class="marginnote">
+        Web browser automation<label for="sn-browser-automation" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-browser-automation" class="margin-toggle" />
+        <span class="sidenote">
           In theory, reverse-engineering portal auth endpoints and requesting them directly would be faster and more
           reliable than remote process automation—but in practice, many auth flows detect and bot-block anything short
-          of a full browser. Insurers don't care about that after login, though—so once we got an access token, some
-          of our code to crawl the logged-in portals indeed made direct requests.
+          of a full browser. Insurers don&rsquo;t care about that after login, though&mdash;so once we got an access token, some
+          of our code to crawl the logged-in portals did indeed make direct requests.
         </span>
         long predates LLMs—and indeed, when I arrived at Granted, AI-free code
         handled some big insurers, like United, Aetna, Cigna, and Blue Cross. Unlike many AI-replacing-coding stories,
-        the problem with expanding beyond those four wasn't dev costs, but account access: fake-enrolling in health
+        the problem with expanding beyond those four wasn&rsquo;t dev costs, but account access: fake-enrolling in health
         insurance
         just so we could reverse-engineer these login flows would be expensive and legally unwise, and getting
         users to partner with us long enough for devs to do it would be slow (and a bad UX for the first users from each
         insurer).
         But when AI is good enough and fast enough to do that reverse-engineering synchronously, as a user signs in,
         that
-        quantitative difference in speed (vs devs) becomes a qualitative difference—we can support the long tail:
-        <label for="mn-squint" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-squint" class="margin-toggle" />
-        <span class="marginnote">
-          If you squint, the problem of "sign in to an insurer portal we've never seen before" contains, as a special
-          case, the problem of "sign in to a portal we've seen before, but that just updated its login pages" - and the
+        quantitative difference in speed (vs devs) becomes a qualitative difference—we can support the long tail:<label for="sn-squint" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-squint" class="margin-toggle" />
+        <span class="sidenote">
+          If you squint, the problem of &ldquo;sign in to an insurer portal we&rsquo;ve never seen before&rdquo; contains, as a special
+          case, the problem of &ldquo;sign in to a portal we&rsquo;ve seen before, but that just updated its login pages&rdquo;&mdash;and the
           AI approach indeed handled changes like that which had broken the hard-coded selectors.
-          We collect both kinds of novelty handling as "robustness", below.
+          We collect both kinds of novelty handling as &ldquo;robustness&rdquo;, below.
         </span>
       </p>
 
@@ -338,12 +303,11 @@ stateDiagram-v2
       </figure>
 
       <p>
-        Roughly, our goal was to <strong>minimize latency and dev effort, and maximize completion rate,</strong>
-        <label for="mn-completion-rate" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-completion-rate" class="margin-toggle" />
-        <span class="marginnote">
-          We used <em>"completion rate"</em> instead of "reliability" because
-          users forgetting their credentials or quitting mid-process aren't problems
+        Roughly, our goal was to <strong>minimize latency and dev effort, and maximize completion rate,</strong><label for="sn-completion-rate" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-completion-rate" class="margin-toggle" />
+        <span class="sidenote">
+          We used <em>&ldquo;completion rate&rdquo;</em> instead of &ldquo;reliability&rdquo; because
+          users forgetting their credentials or quitting mid-process aren&rsquo;t problems
           of software reliability <em>per se</em>. While we <em>had</em> initially focused on bare reliability,
           completion rates more directly
           represented the business impact—and the difference mattered enough in practice to make explicit. Beyond
@@ -375,15 +339,14 @@ stateDiagram-v2
 
       <p>
         On the top left, you have our pre-AI setup of hand-written element selectors for each portal.
-        Moving to the right (more robust) and down (slower),
-        <label for="mn-slower" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-slower" class="margin-toggle" />
-        <span class="marginnote">
+        Moving to the right (more robust) and down (slower),<label for="sn-slower" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-slower" class="margin-toggle" />
+        <span class="sidenote">
           <strong>How much slower?</strong> Roughly 90 seconds for the fully-agentic version vs roughly 30 seconds to the hard-coded one (ignoring
           time blocked on user input). The round-trips to the browsers were the main bottleneck—performance
           work in the LLM-using implementations focused on reducing those instead of request latency <em>per se</em>.
           For example: higher-order tools like
-          "fillUsernameAndPassword", that took selectors for the inputs + submit button all at once,
+          &ldquo;fillUsernameAndPassword&rdquo;, that took selectors for the inputs + submit button all at once,
           instead of prompting the LLM to parallelize fills and clicks.
         </span>
         we have one-shot prompts to recognize pages,
@@ -397,22 +360,21 @@ stateDiagram-v2
       </figure>
 
       <p>
-        <label for="mn-race" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-race" class="margin-toggle" />
-        <span class="marginnote">
+        Maintaining three approaches is more complicated than one, especially given that we supported
+        switching between them within a single login session (if, say, the element selectors for the MFA page were
+        misconfigured, we&rsquo;d still get the speed boost for the initial page, and then the single-page prompts would kick
+        in for the MFA page).<label for="sn-race" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-race" class="margin-toggle" />
+        <span class="sidenote">
           An example of when the single-page prompts needed to fall back to the full agent is when we first encountered
           an MFA entry screen with separate inputs per-digit: the prompt had been locked into providing one selector
-          for the code input + one for the submit button, never needing to see the user's digits, whereas the full agent
+          for the code input + one for the submit button, never needing to see the user&rsquo;s digits, whereas the full agent
           was free to make individual fill and click calls, with the digits in context.
           It also helped deal with novel page states, like if an insurer presented users with a full survey screen upon
           signing in.
         </span>
-        Maintaining three approaches is more complicated than one, especially given that we supported
-        switching between them within a single login session (if, say, the element selectors for the MFA page were
-        misconfigured, we'd still get the speed boost for the initial page, and then the single-page prompts would kick
-        in for the MFA page).
         So this tripled implementation is <em>not</em> what we went with out of the gate: we started correct with the
-        full agent, then only introduced complexity later on when we'd measured performance and UX impacts and
+        full agent, then only introduced complexity later on when we&rsquo;d measured performance and UX impacts and
         prioritized more work
         here.
       </p>
@@ -486,10 +448,9 @@ flowchart TB
       </p>
 
       <p>
-        <strong>Playwright traces:</strong> allowed us to reconstruct the DOM for debugging.
-        <label for="mn-click" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-click" class="margin-toggle" />
-        <span class="marginnote">
+        <strong>Playwright traces:</strong> allowed us to reconstruct the DOM for debugging.<label for="sn-click" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-click" class="margin-toggle" />
+        <span class="sidenote">
           Portals that we needed to debug tended to be bug real users, too. Investigating one issue with
           United,
           I came upon a whole forum thread from a retirement community
@@ -511,9 +472,9 @@ flowchart TB
 
       <p>
         <strong>LLM-as-judge:</strong>
-        <label for="mn-judge" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-judge" class="margin-toggle" />
-        <span class="marginnote">
+        <label for="sn-judge" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-judge" class="margin-toggle" />
+        <span class="sidenote">
           Judginess was also the source of a pretty avant-garde bug: our intercepting MFA
           for users and accessing PHI had been occasionally triggering refusals at the LLM API level—but when we
           explained
@@ -572,14 +533,14 @@ flowchart TB
         came
         from the leverage that the insurer size power-law gives us: focusing performance upgrades on the top portals is
         way more
-        worth it when they're responsible for an outsize share of users—but when it came to anti-bot detection, that
+        worth it when they&rsquo;re responsible for an outsize share of users&mdash;but when it came to anti-bot detection, that
         asymmetry
         meant our efforts were way <em>less</em> worth it.
       </p>
 
       <p>
         <strong>Let agents run end-to-end simulations sooner.</strong>
-        These were originally more at the unit-test level, and I'd reserved end-to-end testing for
+        These were originally more at the unit-test level, and I&rsquo;d reserved end-to-end testing for
         real insurer websites. While this tradeoff made sense when comparing human dev effort required to run the two
         kinds of tests,
         the real difference-maker was in letting agents exercise more of their logic and control flow independently.
@@ -587,11 +548,11 @@ flowchart TB
 
       <p><strong>Avoid <em>pre</em>-inventing the wheel:</strong> When I first set out to build this, the AI tooling and
         browsing landscape was in its infancy.
-        In the time since, libraries have come out that either directly line up with work we did (e.g. OpenAI's
+        In the time since, libraries have come out that either directly line up with work we did (e.g. OpenAI&rsquo;s
         TypeScript packages gained built-in <a href="https://zod.dev/">zod</a> support) or have built higher-level
-        interfaces (e.g. browserbase's
+        interfaces (e.g. browserbase&rsquo;s
         <a href="https://www.stagehand.dev/">stagehand</a> library)—while
-        they were not an option when we started, and we have adopted them in places, they're still something that
+        they were not an option when we started, and we have adopted them in places, they&rsquo;re still something that
         would look different if starting that project today.
       </p>
 
@@ -600,10 +561,9 @@ flowchart TB
     <section>
       <h2>Results</h2>
 
-      <p><span class="newthought">The system unlocked portals beyond our own insurers,</span>
-        <label for="mn-ehr" class="margin-toggle">&#8853;</label>
-        <input type="checkbox" id="mn-ehr" class="margin-toggle" />
-        <span class="marginnote">We also threw the sign-in agent at EHRs during a hackathon, and it worked without
+      <p><span class="newthought">The system unlocked portals beyond our own insurers,</span><label for="sn-ehr" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-ehr" class="margin-toggle" />
+        <span class="sidenote">We also threw the sign-in agent at EHRs during a hackathon, and it worked without
           changes.
         </span> before we gradually added complexity to bring
         performance back up to par with hand-coded approaches.
@@ -639,6 +599,45 @@ flowchart TB
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <section id="appendix-state-machine">
+      <h2>Appendix: Portal Auth State Machine</h2>
+
+      <figure class="fullwidth">
+        <div class="diagram-container fullwidth">
+          <pre class="mermaid">
+stateDiagram-v2
+    [*] --> LoginPageLoaded : navigate to loginUrl
+
+    LoginPageLoaded --> CredentialsSubmitted : fill username + password
+
+    CredentialsSubmitted --> CredentialsErrored : invalid credentials
+    CredentialsSubmitted --> MfaOptionsPresented : MFA required (multiple methods)
+    CredentialsSubmitted --> MfaCodeEntry : MFA required (single method)
+    CredentialsSubmitted --> SecurityQuestion : security question presented
+    CredentialsSubmitted --> Success : direct login
+
+    CredentialsErrored --> CredentialsSubmitted : try with new creds
+
+    MfaOptionsPresented --> MfaCodeEntry : user selects method
+
+    MfaCodeEntry --> MfaCodeErrored : wrong code
+    MfaCodeEntry --> SecurityQuestion : additional verification
+    MfaCodeEntry --> Success : authenticated
+
+    MfaCodeErrored --> MfaCodeEntry : retry
+
+    SecurityQuestion --> SecurityQuestionErrored : wrong answer
+    SecurityQuestion --> Success : correct answer
+
+    SecurityQuestionErrored --> SecurityQuestion : retry
+
+    Success --> [*]
+</pre>
+        </div>
+      </figure>
     </section>
 
     <!-- ═══════════════════════════════════════════════ -->
