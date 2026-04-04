@@ -304,7 +304,16 @@ stateDiagram-v2
 
 
       <p>
-        Web browser automation long predates LLMs—and indeed, when I arrived at Granted, AI-free code
+        Web browser automation
+        <label for="mn-browser-automation" class="margin-toggle">&#8853;</label>
+        <input type="checkbox" id="mn-browser-automation" class="margin-toggle" />
+        <span class="marginnote">
+          In theory, reverse-engineering portal auth endpoints and requesting them directly would be faster and more
+          reliable than remote process automation—but in practice, many auth flows detect and bot-block anything short
+          of a full browser. Insurers don't care about that after login, though—so once we got an access token, some
+          of our code to crawl the logged-in portals indeed made direct requests.
+        </span>
+        long predates LLMs—and indeed, when I arrived at Granted, AI-free code
         handled some big insurers, like United, Aetna, Cigna, and Blue Cross. Unlike many AI-replacing-coding stories,
         the problem with expanding beyond those four wasn't dev costs, but account access: fake-enrolling in health
         insurance
