@@ -249,18 +249,17 @@
 
 
       <p>
-        <span class="newthought"><a href="https://grantedhealth.com/">Granted</a> is a consumer app</span> that helps
-        people navigate the healthcare system:
-        everything from choosing a plan, to finding a doctor, to fighting insurance claim denials.
-        Step one for most of these workflows is to get the user&rsquo;s information:<label for="sn-hipaa" class="margin-toggle sidenote-number"></label>
+        <span class="newthought"><a href="https://grantedhealth.com/">Granted</a> is an app</span> that helps
+        consumers navigate the healthcare system; for example: choosing a plan, finding a doctor, or fighting claim denials.
+        Step one is to get the user&rsquo;s information:<label for="sn-hipaa" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-hipaa" class="margin-toggle" />
         <span class="sidenote">
           <strong>What about HIPAA?</strong>
-          most users need to sign a release before their insurers will speak to us on their behalf.
+          users need to sign a release before their insurers will speak to us on their behalf.
           But those in-the-know might also ask why we didn&rsquo;t use the HIPAA-mandated APIs&mdash;the answer is those APIs omit critical info like dollar amounts.
         </span>
         things like explanations of benefits, claims details, or member&nbsp;ID cards.
-        To save users the hassle of collecting that info themselves, we let them sign into their insurer&rsquo;s web portal through our
+        To save users that hassle, we let them sign into their insurer&rsquo;s portal through our
         app.<label for="sn-state-machine" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-state-machine" class="margin-toggle" />
         <span class="sidenote">See <a href="#appendix-state-machine">appendix</a> for the
@@ -277,15 +276,15 @@
           of a full browser. Insurers don&rsquo;t care about that after login, though&mdash;so once we got an access token, some
           of our code to crawl the logged-in portals did indeed make direct requests.
         </span>
-        long predates LLMs—and indeed, when I arrived at Granted, AI-free code
+        long predates LLMs—when I arrived, AI-free code
         handled some big insurers, like United, Aetna, Cigna, and Blue Cross. Unlike many AI-replacing-coding stories,
         the problem with expanding beyond those four wasn&rsquo;t dev costs, but account access: fake-enrolling in health
         insurance
-        just so we could reverse-engineer these login flows would be expensive and legally unwise, and getting
-        users to partner with us long enough for devs to do it would be slow (and bad UX).
-        But when AI is good enough and fast enough to do that reverse-engineering synchronously, as a user signs in,
+        to reverse-engineer login flows would be expensive and legally unwise, and recruiting
+        users of new portals to work with developers would be slow (and bad UX).
+        But when AI can do that reverse-engineering synchronously, as a user signs in,
         that
-        quantitative difference in speed (vs devs) becomes a qualitative difference—we can support the long tail:<label for="sn-squint" class="margin-toggle sidenote-number"></label>
+        quantitative difference in delivery time becomes qualitative—we can support the long tail:<label for="sn-squint" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-squint" class="margin-toggle" />
         <span class="sidenote">
           If you squint, the problem of &ldquo;sign in to an insurer portal we&rsquo;ve never seen before&rdquo; contains, as a special
@@ -304,15 +303,13 @@
         <input type="checkbox" id="sn-completion-rate" class="margin-toggle" />
         <span class="sidenote">
           We used &ldquo;completion rate&rdquo; instead of &ldquo;reliability&rdquo; because
-          users forgetting their credentials or quitting mid-process aren&rsquo;t problems
+          users forgetting credentials or quitting mid-process aren&rsquo;t problems
           of software reliability <em>per se</em>. While we <em>had</em> initially focused on bare reliability,
           completion rates more directly
-          represented the business impact—and the difference mattered enough in practice to make explicit. Beyond
+          represented business impact—and the difference mattered enough to make explicit. Beyond
           turning
-          performance into a constraint (since slowness was a main reason for quitting), this also drove product
-          features like guides on how to reset passwords at major insurers, or a survey prompt for quit reasons, or
-          surfacing a technical support email distinct from our normal healthcare-navigation case flow.
-          Eventually, our target completion rate was 90% (reliability <em>per se</em> was generally well above that).
+          performance into a constraint (since slowness was a main reason for quitting), this drove product
+          features like password-reset guides for major insurers, in-app quit-reason surveys, and a dedicated technical support email. Eventually, our target completion rate was 90% (reliability <em>per se</em> was generally well above that).
         </span>
         <strong>subject to the constraint of supporting
           the long tail of insurers.</strong>
@@ -339,7 +336,7 @@
         Moving to the right (more robust) and down (slower),<label for="sn-slower" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-slower" class="margin-toggle" />
         <span class="sidenote">
-          <strong>How much slower?</strong> Roughly 90 seconds for the fully-agentic version vs roughly 30 seconds to the hard-coded one (ignoring
+          <strong>How much slower?</strong> Roughly 90 seconds for the agent vs roughly 30 seconds for the hard-coded one (ignoring
           time blocked on user input). The round-trips to the browsers were the main bottleneck—performance
           work in the LLM-using implementations focused on reducing those instead of request latency <em>per se</em>.
           For example: higher-order tools like
@@ -347,7 +344,7 @@
           instead of prompting the LLM to parallelize fills and clicks.
         </span>
         we have one-shot prompts to recognize pages,
-        and a fully agentic approach where the LLM is aware of the whole navigation history itself. So, which one did
+        and a fully agentic approach where the LLM tracks the whole navigation history in-context. So, which one did
         we choose?
         <strong>All of them:</strong>
       </p>
@@ -357,21 +354,21 @@
       </figure>
 
       <p>
-        Maintaining three approaches is more complicated than one, especially given that we supported
-        switching between them within a single login session (if, say, the element selectors for the MFA page were
+        Maintaining three approaches is more complex than one, especially given that we supported
+        switching between them mid-session (if, say, the element selectors for the MFA page were
         misconfigured, we&rsquo;d still get the speed boost for the initial page, and then the single-page prompts would kick
         in for the MFA page).<label for="sn-race" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-race" class="margin-toggle" />
         <span class="sidenote">
           An example edge-case where the agent had to bail out the single-page prompts is the first time we encountered
           an MFA entry screen with separate inputs per-digit: the prompt had been locked into providing one selector
-          for the code input + one for the submit button, never needing to see the user&rsquo;s digits, whereas the full agent
+          for the code input + one for the submit button, never needing to see the user&rsquo;s digits, whereas the agent
           was free to make individual fill and click calls, with the digits in context.
           It also helped deal with novel page states, like if an insurer presented users with a full survey screen upon
           signing in.
         </span>
         So this tripled implementation is <em>not</em> what we went with out of the gate: we started correct with the
-        full agent, then only introduced complexity later on when we&rsquo;d measured performance and UX impacts and
+        agent, then only introduced complexity later on when we&rsquo;d measured performance and UX impacts and
         prioritized more work
         here.
       </p>
@@ -450,22 +447,21 @@ flowchart BT
         <strong>Playwright traces:</strong> allowed us to reconstruct the DOM for debugging.<label for="sn-click" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-click" class="margin-toggle" />
         <span class="sidenote">
-          Portals that we needed to debug tended to be bug real users, too. Investigating one issue with
+          Portals we needed to debug tended to bug real users, too. Investigating one issue with
           United,
           I came upon a whole forum thread from a retirement community
           complaining about the same error message (presumably having been caught in some bad IP block,
           or using accessibility devices that produced bot-like interaction patterns).
         </span>
         When we rolled out
-        the hybrid system, we also used these as a source for configured selectors, letting more portals get that
+        the hybrid system, we also used these to source configured selectors, letting more portals reach that
         top tier of performance.
       </p>
 
       <p>
-        <strong>Internal dashboard:</strong> We tracked the highest-signal data in our database
-        as well as traces, so we could run longer-term analytics on them, or include them as context on
-        evals. That data also powered attempts to automate tuning of the system (multi-armed bandit
-        for e.g. stealth or proxy settings per insurer, to maximize antibot-avoidance), but those ended up
+        <strong>Internal dashboard:</strong> We tracked high-signal data in our database, as well,
+        for longer-term analytics and eval context. That data also powered attempts to automate tuning (multi-armed bandit
+        for stealth/proxy settings per insurer), but those ended up
         being more complexity than they were worth.
       </p>
 
@@ -500,20 +496,19 @@ flowchart BT
 
       <p>
         <span class="newthought">I did plenty of the frontend engineering</span> for this feature, though
-        Granted also had a dedicated PM and a dedicated Designer who directed how that frontend should behave.
+        Granted also had a dedicated PM and a dedicated Designer who directed how it should behave.
       </p>
 
       <p>
-        What happened after sign-in was primarily the responsibility of two of my teammates, one of which owned the
-        crawl of the portals to find data, and the other of which owned the ingestion and normalization of that data
-        into roughly FHIR-ey shapes.
+        What happened after sign-in was primarily two teammates' responsibility: one owned
+ crawling the portals, the other owned ingesting and normalization of the data into FHIR.
       </p>
 
       <p>
-        We also collaborated with Browserbase, a company specializing in Playwright proxying and
-        stealth services. Bot detection is a cat-and-mouse game—and with large insurers employing companies
-        like Akamai, that have more bot-detection engineers than Granted has employees, we would not be
-        effective players of it.
+        We also collaborated with Browserbase, who specialize in Playwright proxying and
+        stealth. Bot detection is a cat-and-mouse game—and with large insurers employing companies
+        like Akamai, who have more bot-detection engineers than Granted has employees, we would not be
+        effective players.
       </p>
 
     </section>
@@ -527,21 +522,18 @@ flowchart BT
       </p>
 
       <p>
-        <strong>Lean on vendors for anti-anti-bot measures more, and sooner.</strong> A lot of the value in the design
-        came
-        from the leverage that the insurer size power-law gives us: focusing performance upgrades on the top portals is
-        way more
-        worth it when they&rsquo;re responsible for an outsize share of users&mdash;but when it came to anti-bot detection, that
-        asymmetry
-        meant our efforts were way <em>less</em> worth it.
+        <strong>Lean on vendors for anti-anti-bot measures more, and sooner.</strong> Much of the design's leverage came
+        from the insurer-size power-law: focusing performance upgrades on the top portals is more
+        worthwhile when they serve an outsize share of users&mdash;but for anti-bot detection, that
+        asymmetry meant our efforts were <em>less</em> worthwhile.
       </p>
 
       <p>
         <strong>Let agents run end-to-end simulations sooner.</strong>
-        These were originally more at the unit-test level, and I&rsquo;d reserved end-to-end testing for
-        real insurer websites. While this tradeoff made sense when comparing human dev effort required to run the two
+        These were originally at the unit level, with end-to-end testing reserved for
+        real insurer websites. While this tradeoff made sense comparing human effort for the two
         kinds of tests,
-        the real difference-maker was in letting agents exercise more of their logic and control flow independently.
+        the real difference-maker was letting agents exercise more of their logic and control flow independently.
       </p>
 
       <p><strong>Avoid <em>pre</em>-inventing the wheel:</strong> When I first set out to build this, the AI tooling and
@@ -559,12 +551,12 @@ flowchart BT
     <section>
       <h2>Results</h2>
 
-      <p><span class="newthought">The system unlocked portals beyond our own insurers,</span><label for="sn-ehr" class="margin-toggle sidenote-number"></label>
+      <p><span class="newthought">The system unlocked portals beyond our insurers,</span><label for="sn-ehr" class="margin-toggle sidenote-number"></label>
         <input type="checkbox" id="sn-ehr" class="margin-toggle" />
         <span class="sidenote">We also threw the sign-in agent at EHRs during a hackathon, and it worked without
           changes.
-        </span> before we gradually added complexity to bring
-        performance back up to par with hand-coded approaches.
+        </span> before we added complexity to bring
+        performance back to par with hand-coded approaches.
       </p>
 
       <table>
