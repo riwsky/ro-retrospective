@@ -1,0 +1,23 @@
+Technical Project Discussion
+
+Length: 55 minutes total (20 minutes presentation, 25 minutes discussion, 10 minutes for your questions)
+
+Overview:
+Please come prepared to discuss a recent technical project that your team worked on; ideally one from the past 1-2 years that you can speak to in depth. The interviewer(s) will be engineers or engineering managers, but may not have expertise in the specific domain of your project.
+
+You should expect to give a presentation for the first 20 minutes which will be followed by 15-20 minutes of discussion, with the remaining time left for any questions you may have. There is no required specified format for the presentation - but most candidates find it helpful to prepare slides or a document, use a virtual whiteboard for a system design or present in another way. There is no need to send materials ahead of time.
+
+The presentation should cover the high-level goals of the project, the technical design and tradeoffs, staffing (including describing your specific role and contributions), key decisions or challenges (whether technical, people, organizational, etc), and the outcome. The interviewer(s) will be evaluating your project leadership and technical depth, so you are encouraged to pick a project that demonstrates your experience in those areas.
+
+Content:
+We're evaluating technical depth, project leadership, and communication. Your presentation should address the following areas:
+
+Context and goals - Why did this project matter? What problem were you solving and for whom?
+Technical design - Walk through the system architectures and your core technical decisions. Explain the tradeoffs you made and your reasoning.
+Execution - How was the project staffed, scoped, and coordinated? What was your specific role? How did you handle deployment or rollout?
+Outcomes and reflection - What was the result? What would you do differently?
+
+Selecting a project:
+Pick a project where you can speak to both the technical details and the broader context. The project should involve ambiguity, difficult decisions, or coordination across teams. If aspects of your project didn't go as planned, that's worth discussing.
+
+Please do not share any confidential or proprietary information from your current or previous employers.
