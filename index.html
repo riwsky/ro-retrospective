@@ -407,16 +407,16 @@ flowchart BT
   end
 
   Temporal["Temporal"]
-  NEST["NestJS"]
+  NEST["API Server (NestJS)"]
   DB["Database"]
 
   subgraph Client["Clients"]
-    Mobile["React Native"]
-    Web["Next.js"]
+    Mobile["Mobile (React Native)"]
+    Web["Web (Next.js)"]
   end
 
-  Mobile -->|"GraphQL"| NEST
-  Web -->|"GraphQL"| NEST
+  Mobile --> NEST
+  Web --> NEST
   NEST --> Temporal
   Temporal --> Engine
   Engine -->|"race"| Config
@@ -426,7 +426,7 @@ flowchart BT
   AI --> PW
   SS --> PW
   PW -->|"filtered HTML, screenshots, etc"| Engine
-  Engine -.->|"updates"| Temporal
+  Engine -.-> Temporal
   NEST --> DB
   Engine --> DB
 
