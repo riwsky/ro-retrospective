@@ -72,12 +72,17 @@ const libsDir = path.join(__dirname, 'libs');
   await page.waitForTimeout(200);
   const paretoClip = await page.evaluate(() => {
     const r = document.querySelector('#pareto-plot svg').getBoundingClientRect();
-    const pad = 20;
+    // The right-side label ("Full Multi-Turn Agent") extends past the
+    // svg's bbox due to overflow:visible; pad horizontally. The bbox
+    // already contains the axis label at the bottom, so no bottom pad --
+    // otherwise the paragraph below bleeds into the frame.
+    const padX = 20;
+    const padTop = 20;
     return {
-      x: Math.max(0, r.x - pad),
-      y: Math.max(0, r.y - pad),
-      width: r.width + pad * 2 + 80,
-      height: r.height + pad * 2,
+      x: Math.max(0, r.x - padX),
+      y: Math.max(0, r.y - padTop),
+      width: r.width + padX * 2 + 80,
+      height: r.height + padTop,
     };
   });
   await page.screenshot({ path: path.join(outDir, 'frontier.png'), clip: paretoClip, ...shot });
